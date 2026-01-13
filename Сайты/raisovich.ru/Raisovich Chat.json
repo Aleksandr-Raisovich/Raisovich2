@@ -1,0 +1,171 @@
+{
+  "name": "Raisovich Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "643e94e5-b845-4c35-a305-fb57bc0d5066",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5b6d23af-dc0d-4fec-88eb-d5667e8341d9",
+      "name": "Webhook",
+      "webhookId": "643e94e5-b845-4c35-a305-fb57bc0d5066"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.history[1].text }}{{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "Ты агент по косультации по созданию сайтов. Твоя задача понять чего хочет реализовать клиент и составить подробное техническое задание по созданию сайта. Задавай уточняющие вопросы пока не сформируется картина понимания технического задания. Как только понимание сформировалось, отправь собеседнику на проверку"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "00f4a2fa-4979-46a1-810d-69ebf8cfbd2f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen-plus",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        176,
+        176
+      ],
+      "id": "bb2771f8-0715-4609-b411-6cdd9aa68c9d",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "F8r1dgRAnv8PryWe",
+          "name": "deu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        0
+      ],
+      "id": "04a1f3a0-5e2c-4542-8a86-b2574baa7600",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "21312"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        176
+      ],
+      "id": "9748661b-68af-4ccd-91f5-6b178156bead",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -144,
+        -80
+      ],
+      "id": "2b8e37f8-5e43-4fb1-9992-b7a21285e8c6",
+      "name": "When chat message received",
+      "webhookId": "824da093-3048-45a7-8946-e7261f4580e9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "17e14475-1bf7-4d84-b2ea-0b7a384ffbe6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "55a980d485210642b5dde6b6cc198b3158d6536240c16dd38738890e4f47b4b4"
+  },
+  "id": "RaSnYm5kvNKx5Fnw",
+  "tags": []
+}
